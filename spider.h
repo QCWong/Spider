@@ -40,7 +40,7 @@ public:
 	int AnalysisXML(const NodeURL *nodeUrl);
 
 public:
-	char sourceURL[URLSIZE];
+	char *sourceURL;
 	vector <NodeURL> urlVector;
 	int fileRandeNum;
 	

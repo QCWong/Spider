@@ -1,13 +1,16 @@
 #include "spider.h"
-
+#include <stdlib.h>
 
 Spider::Spider(void)
 {
+    sourceURL=new char[URLSIZE];
+    memset(sourceURL,0,URLSIZE);
 }
 
 
 Spider::~Spider(void)
 {
+    delete []sourceURL;
 }
 
 
@@ -15,7 +18,7 @@ int Spider::initSpider( char *src )
 {
 	urlVector.clear();
 	fileRandeNum = 1;
-	memcpy(sourceURL, src, URLSIZE);
+	memcpy(sourceURL, src, strlen(src));
 	NodeURL *root = new NodeURL();
 	getInfoFromURL(sourceURL, root);
 	urlVector.push_back(*root);
@@ -47,6 +50,8 @@ int Spider::handleOneUrl( NodeURL * nodeUrl )
 	sendRequest(nodeUrl);
 
 	getResult(nodeUrl);
+	
+	fprintf(stdout, "Begin to AnalysisXML\n");
 
 	AnalysisXML(nodeUrl);
 
@@ -61,11 +66,11 @@ int Spider::handleOneUrl( NodeURL * nodeUrl )
 void Rstrchr(char * s, int x, char ** d)
 {
 	int len = strlen(s) - 1;
-	while (len >= 0)	
+	while (len >= 0)
 	{
-		if (x == s[len]) 
+		if (x == s[len])
 		{
-			(*d) = s + len; 
+			(*d) = s + len;
 			return;
 		}
 		len--;
@@ -79,44 +84,44 @@ int Spider::getInfoFromURL( char *src, NodeURL *nodeUrl )
 	int len;
 	char *pHost, *pDir, *pFile, *pPort;
 
-	if (!(*src))  
+	if (!(*src))
 		return -1;
-	
+
 	pHost = src;
-	if (!strncmp(pHost, "http://", strlen("http://")))  
+	if (!strncmp(pHost, "http://", strlen("http://")))
 		pHost = src + strlen("http://");
 	else return 1;
 
 	pDir = strchr(pHost, '/');
 
-	if (pDir)  
+	if (pDir)
 	{
 		len = strlen(pHost) - strlen(pDir);
 		memcpy (nodeUrl->host, pHost, len);
 
-		if (*(pDir + 1)) 
+		if (*(pDir + 1))
 		{
 			Rstrchr(pDir + 1, '/', &pFile);
 			if (pFile)
 				len = strlen(pDir + 1) - strlen(pFile);
-			else 
+			else
 				len = 0;
 
-			if (len > 0) 
+			if (len > 0)
 			{
 				memcpy(nodeUrl->dir, pDir + 1, len);
-				if (pFile + 1) 
+				if (pFile + 1)
 				{
 					len = strlen(pFile + 1);
 					memcpy(nodeUrl->file, pFile + 1, len);
 				}
-				else 
+				else
 				{
-					len = 1;					
+					len = 1;
 					memcpy(nodeUrl->file, "@", len);
 				}
 			}
-			else 
+			else
 			{
 				len = 1;
 				memcpy(nodeUrl->dir, "/", len);
@@ -132,7 +137,7 @@ int Spider::getInfoFromURL( char *src, NodeURL *nodeUrl )
 			memcpy(nodeUrl->file, "@", len);
 		}
 	}
-	else  
+	else
 	{
 		len = strlen(pHost);
 		memcpy(nodeUrl->host, pHost, strlen(pHost));
@@ -143,7 +148,7 @@ int Spider::getInfoFromURL( char *src, NodeURL *nodeUrl )
 	}
 
 	pPort = strchr(nodeUrl->host, ':');
-	if (pPort)  
+	if (pPort)
 		nodeUrl->port = atoi(pPort + 1);
 	else
 		nodeUrl->port = 80;
@@ -230,7 +235,7 @@ int Spider::sendRequest( const NodeURL *nodeUrl )
 	int thisSend = 0;
 	int totalSend = 0;
 	int nbytes = strlen(request);
-	while (totalSend < nbytes) 
+	while (totalSend < nbytes)
 	{
 		thisSend = write(nodeUrl->sockfd, request + totalSend, nbytes - totalSend);
 		if (thisSend == -1)
@@ -274,18 +279,18 @@ int Spider::getResult( const NodeURL *nodeUrl )
 	memset(buffer, '\0', sizeof(buffer));
 	while ((nbytes = read(nodeUrl->sockfd, buffer,1)) == 1)
 	{
-		if (i < 4)  
-		{ 
+		if (i < 4)
+		{
 			/* 获取 HTTP 消息头 */
-			if (buffer[0] == '\r' || buffer[0] == '\n') 
+			if (buffer[0] == '\r' || buffer[0] == '\n')
 				i++;
-			else 
+			else
 				i = 0;
-			memcpy(httpHeader + j, buffer, 1); 
+			memcpy(httpHeader + j, buffer, 1);
 			j++;
 		}
-		else 
-		{ 
+		else
+		{
 			/* 获取 HTTP 消息体 */
 			fprintf(savefp, "%c", buffer[0]); /* print content on the file */
 			//fprintf(stdout, "%c", buffer[0]); /* print content on the screen */
@@ -313,7 +318,7 @@ int Spider::getUrl( char *src, char *url )
 			{
 				len = strlen(pEnd) - strlen(pStart);
 				memcpy(url, pStart, len);
-				
+
 				return 1;
 			}
 			else return 0;
@@ -348,6 +353,6 @@ int Spider::AnalysisXML( const NodeURL *nodeUrl )
 				getInfoFromURL(url, nodeUrl);
 				urlVector.push_back(*nodeUrl);
 			}
-		}		
+		}
 	}
 }
