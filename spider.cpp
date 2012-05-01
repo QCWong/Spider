@@ -150,7 +150,7 @@ int Spider::getInfoFromURL( char *src, NodeURL *nodeUrl )
 
 	//itoa(fileRandeNum, nodeUrl->saveAddr, 10);
 	sprintf(nodeUrl->saveAddr, "%d\0", fileRandeNum);
-	fprintf(stdout, "fileRandeNum = %d, nodeUrl->saveAddr = %s", fileRandeNum, nodeUrl->saveAddr);
+	fprintf(stdout, "fileRandeNum = %d, nodeUrl->saveAddr = %s\n", fileRandeNum, nodeUrl->saveAddr);
 	fileRandeNum++;
 
 	cout << "#######################start##################################"<<endl;
