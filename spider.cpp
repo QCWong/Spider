@@ -298,7 +298,12 @@ int Spider::getResult( const NodeURL *nodeUrl )
 		}
 	}
 	fprintf(stdout, "XML has loaded.\n");
-	fclose(savefp);
+	
+	if ( fclose(savefp) == 0)
+		fprintf(stdout, "savefp close accept!\n");
+	else
+		fprintf(stdout, "savefp close ERROR!\n");
+
 }
 
 int Spider::getUrl( char *src, char *url )

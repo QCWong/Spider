@@ -1,15 +1,10 @@
-OBJECT = nodeURL.o Spider.o 
-
+OBJECT = nodeURL.o spider.o 
 all : main
-
-nodeURL.o : nodeURL.cpp nodeURL.h 
-	g++ -c -g nodeURL.cpp -o nodeURL.o
-
-Spider.o : Spider.cpp Spider.h
-	g++ -c -g Spider.cpp -o Spider.o
+.c.o:
+	g++ -c -g -o $@ $<
 
 main : $(OBJECT) main.cpp 
-	g++ -g $(OBJECT) main.cpp -o main
+	g++ -g $(OBJECT) main.cpp -o spider
 
 clean :
 	rm -f *.o 
